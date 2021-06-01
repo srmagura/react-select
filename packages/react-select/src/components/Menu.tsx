@@ -235,6 +235,7 @@ export interface MenuProps<
   innerProps: JSX.IntrinsicElements['div'];
   isLoading: boolean;
   placement: CoercedMenuPlacement;
+  controlElement: HTMLDivElement | null;
   /** The children to be rendered. */
   children: ReactNode;
 }
@@ -356,14 +357,33 @@ const Menu = <
 >(
   props: MenuProps<Option, IsMulti, Group>
 ) => {
-  const { children, className, cx, getStyles, innerRef, innerProps } = props;
+  const {
+    children,
+    className,
+    cx,
+    getStyles,
+    innerProps,
+    menuPlacement,
+    menuPosition,
+    controlElement,
+  } = props;
+
+  const [menuElement, setMenuElement] = useState<HTMLDivElement | null>(null);
+
+  const { styles, attributes } = usePopper(controlElement, menuElement, {
+    placement: coercePlacement(menuPlacement),
+    modifiers: [{ name: 'flip', enabled: menuPlacement === 'auto' }, sameWidth],
+    strategy: menuPosition,
+  });
 
   return (
     <div
       css={getStyles('menu', props)}
       className={cx({ menu: true }, className)}
-      ref={innerRef}
+      ref={setMenuElement}
       {...innerProps}
+      style={styles.popper}
+      {...attributes.popper}
     >
       {children}
     </div>
@@ -575,8 +595,6 @@ export const MenuPortal = <
     null
   );
 
-  const [menuElement, setMenuElement] = useState<HTMLDivElement | null>(null);
-
   // callback for occassions where the menu must "flip"
   const getPortalPlacement = ({ placement }: MenuState) => {
     const initialPlacement = coercePlacement(props.menuPlacement);
@@ -598,10 +616,6 @@ export const MenuPortal = <
   } = props;
   const isFixed = position === 'fixed';
 
-  const { styles, attributes } = usePopper(controlElement, menuElement, {
-    modifiers: [sameWidth],
-  });
-
   // bail early if required elements aren't present
   if ((!appendTo && !isFixed) || !controlElement) {
     return null;
@@ -617,9 +631,6 @@ export const MenuPortal = <
         className
       )}
       {...innerProps}
-      ref={setMenuElement}
-      style={styles.popper}
-      {...attributes.popper}
     >
       {children}
     </div>
