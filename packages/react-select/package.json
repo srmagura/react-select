@@ -48,6 +48,14 @@
     "select",
     "ui"
   ],
+  "exports": {
+    ".": "./dist/react-select.esm.js",
+    "./base": "./base/dist/react-select.esm.js",
+    "./animated": "./animated/dist/react-select.esm.js",
+    "./async": "./async/dist/react-select.esm.js",
+    "./creatable": "./creatable/dist/react-select.esm.js",
+    "./async-creatable": "./async-creatable/dist/react-select.esm.js"
+  },
   "preconstruct": {
     "entrypoints": [
       ".",
